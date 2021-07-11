@@ -51,7 +51,7 @@ public class SearchTests extends TestBase{
 	 
 	  if(result) { 
 		  
-		  	WebElement listItem = findSubElementWithTextInListByClass(driver, "search-item", "primary-search-label",  HomePage.CALABASAS_LOCATION); 
+		  	WebElement listItem = findSubElementWithTextInListByClass(driver, HomePage.LOCATOIN_LIST_PARENT, HomePage.LOCATOIN_LIST_CHILD,  HomePage.CALABASAS_LOCATION); 
 	
 		  	result = clickElement(driver, listItem);
 		  	
