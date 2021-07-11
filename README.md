@@ -2,7 +2,7 @@
 
 # Over view
 
-These tests are built using Selenium and Java. They are run and results are recored with TestNG. The current test suite will execute in parallel. 
+These tests are built using Selenium and Java. They are run and results are recored with TestNG. The current test suite will execute in parallel using chrome headless. 
 
 
 # Development environment
