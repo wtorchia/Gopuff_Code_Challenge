@@ -4,11 +4,15 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.TestListenerAdapter;
@@ -19,12 +23,13 @@ import pom.POMBase;
 public class TestBase extends TestListenerAdapter {
 	
 	protected int DEFAULT_WAIT = 10;
-	
+	protected boolean RUN_HEADLESS = true;
 
 	
 	public TestBase() {
 		
 	}
+	
 	
 	protected WebDriver getChromeDriver() {
 		
@@ -33,8 +38,8 @@ public class TestBase extends TestListenerAdapter {
 		System.setProperty("webdriver.chrome.driver", "lib\\chromedriver.exe");       
   
 		ChromeOptions options = new ChromeOptions();
-		  
-		options.addArguments("--headless");
+		
+		if(this.RUN_HEADLESS) { options.addArguments("--headless"); }
 		
 		WebDriver driver = new ChromeDriver(options);
 		
@@ -57,13 +62,7 @@ public class TestBase extends TestListenerAdapter {
 		} 
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
-			
-			log("Closing driver after error");
-			
-			driver.close();
-			
-			Assert.fail();
+			logAndFail(driver, e);
 			
 			return false;
 		}
@@ -76,7 +75,11 @@ public class TestBase extends TestListenerAdapter {
 			
 			log("Waiting for element with name : " + elementName);
 		
-			driver.findElement(By.name(elementName));
+			WebElement element = driver.findElement(By.name(elementName));
+			
+			WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+			 
+			wait.until(ExpectedConditions.elementToBeClickable(element));
 			
 			log("Found element with name : " + elementName);
 			
@@ -84,13 +87,7 @@ public class TestBase extends TestListenerAdapter {
 		}
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
-			
-			log("Closing driver after error");
-			
-			driver.close();
-			
-			Assert.fail();
+			logAndFail(driver, e);
 			
 			return false;
 		}
@@ -103,7 +100,11 @@ public class TestBase extends TestListenerAdapter {
 			
 			log("Waiting for element with ID : " + ID);
 		
-			driver.findElement(By.id(ID));
+			WebElement element = driver.findElement(By.id(ID));
+			
+			WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+			 
+			wait.until(ExpectedConditions.elementToBeClickable(element));
 			
 			log("Found element with ID : " + ID);
 			
@@ -111,18 +112,39 @@ public class TestBase extends TestListenerAdapter {
 		}
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
-			
-			log("Closing driver after error");
-			
-			driver.close();
-			
-			Assert.fail();
+			logAndFail(driver, e);
 			
 			return false;
 		}
 		
 	}
+	
+	
+	protected boolean waitForElementByClass(WebDriver driver, String className) {
+		
+		try {
+			
+			log("Waiting for element with class name : " + className);
+		
+			WebElement element = driver.findElement(By.className(className));
+			
+			WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+			 
+			wait.until(ExpectedConditions.elementToBeClickable(element));
+			
+			log("Found element with class name : " + className);
+			
+			return true;
+		}
+		catch(Exception e) {
+			
+			logAndFail(driver, e);
+			
+			return false;
+		}
+		
+	}
+	
 	
 	
 	protected WebElement getElementByName(WebDriver driver, String elementName) {
@@ -137,6 +159,10 @@ public class TestBase extends TestListenerAdapter {
 				
 				WebElement element = driver.findElement(By.name(elementName));
 				
+				WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+				 
+				wait.until(ExpectedConditions.elementToBeClickable(element));
+				
 				log("Elelment found");
 				
 				return element;
@@ -150,13 +176,7 @@ public class TestBase extends TestListenerAdapter {
 		}
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
-			
-			log("Closing driver after error");
-			
-			driver.close();
-	
-			Assert.fail();
+			logAndFail(driver, e);
 			
 			return null;
 		}
@@ -176,6 +196,10 @@ public class TestBase extends TestListenerAdapter {
 				
 				WebElement element = driver.findElement(By.id(ID));
 				
+				WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+				 
+				wait.until(ExpectedConditions.elementToBeClickable(element));
+				
 				log("Elelment found");
 				
 				return element;
@@ -189,13 +213,7 @@ public class TestBase extends TestListenerAdapter {
 		}
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
-			
-			log("Closing driver after error");
-		
-			driver.close();
-		
-			Assert.fail();
+			logAndFail(driver, e);
 			
 			return null;
 		}
@@ -211,6 +229,10 @@ public class TestBase extends TestListenerAdapter {
 			
 			WebElement element = getElementByName(driver, elementName );
 			
+			WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+			 
+			wait.until(ExpectedConditions.elementToBeClickable(element));
+			
 			element.sendKeys(text);
 			
 			log("Text sent");
@@ -219,13 +241,7 @@ public class TestBase extends TestListenerAdapter {
 		}
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
-			
-			log("Closing driver after error");
-			
-			driver.close();
-			
-			Assert.fail();
+			logAndFail(driver, e);
 			
 			return false;
 		}
@@ -241,6 +257,10 @@ public class TestBase extends TestListenerAdapter {
 			
 			WebElement element = getElementByID(driver, ID );
 			
+			WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+			 
+			wait.until(ExpectedConditions.elementToBeClickable(element));
+			
 			clickElementByID(driver, ID);
 			
 			element.sendKeys(text);
@@ -253,13 +273,7 @@ public class TestBase extends TestListenerAdapter {
 		}
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
-			
-			log("Closing driver after error");
-			
-			driver.close();
-			
-			Assert.fail();
+			logAndFail(driver, e);
 			
 			return false;
 		}
@@ -274,6 +288,11 @@ public class TestBase extends TestListenerAdapter {
 			
 			WebElement element = getElementByID(driver, ID );
 			
+			WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+			 
+			wait.until(ExpectedConditions.elementToBeClickable(element));
+			
+			
 			log("Clicking element by ID : " + ID);
 			
 			element.click();
@@ -284,20 +303,72 @@ public class TestBase extends TestListenerAdapter {
 		}
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
-			
-			log("Closing driver after error");
-			
-			driver.close();
-			
-			Assert.fail();
+			logAndFail(driver, e);
 			
 			return false;
 		}
 		
+	}
+	
+	
+	protected boolean clickElement(WebDriver driver, WebElement element) {
 		
+
+		try {
+			
+			WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+			 
+			wait.until(ExpectedConditions.elementToBeClickable(element));
+			
+			log("Clicking element ");
+			
+			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+		
+			Actions actions = new Actions(driver);
+			
+			actions.moveToElement(element).click().perform();
+			
+			log("Element clicked");
+			
+			return true;
+		}
+		catch(Exception e) {
+			
+			logAndFail(driver, e);
+			
+			return false;
+		}
 		
 	}
+
+
+	
+	protected WebElement getElementByClass(WebDriver driver, String className) {
+
+		try {
+			
+			log("Looking for element with class : " + className);
+			
+			WebElement element =  driver.findElement(By.className(className));
+			
+			WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+			 
+			wait.until(ExpectedConditions.elementToBeClickable(element));
+			
+			log("Elements found");
+			
+			return element;
+			
+		}
+		catch(Exception e) {
+			
+			logAndFail(driver, e);
+			
+			return null;
+		}
+		
+	}
+	
 	
 	protected List<WebElement> getMultipleElementsByClass(WebDriver driver, String className) {
 
@@ -314,13 +385,32 @@ public class TestBase extends TestListenerAdapter {
 		}
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
+			logAndFail(driver, e);
 			
-			log("Closing driver after error");
+			return null;
+		}
+		
+	}
+	
+	
+	protected List<WebElement> getMultipleSubElementsByClass(WebDriver driver, String parentClassName, String childClassName) {
+
+		try {
 			
-			driver.close();
+			log("Looking for all chiled elements of " +  parentClassName + " with class : " + parentClassName);
 			
-			Assert.fail();
+			WebElement parentElement = getElementByClass(driver, parentClassName);
+			
+			List<WebElement> elementList =  parentElement.findElements(By.className(childClassName));
+			
+			log("Elements found");
+			
+			return elementList;
+			
+		}
+		catch(Exception e) {
+			
+			logAndFail(driver, e);
 			
 			return null;
 		}
@@ -335,22 +425,65 @@ public class TestBase extends TestListenerAdapter {
 			
 			WebElement subElement = element.findElement(By.tagName(tagName));
 			
+			WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+			 
+			wait.until(ExpectedConditions.elementToBeClickable(subElement));
+			
 			return subElement;
 			
 		}
 		catch(Exception e) {
 			
-			log("ERROR : " + e.toString());
-			
-			log("Closing driver after error");
-			
-			driver.close();
-			
-			Assert.fail();
+			logAndFail(driver, e);
 			
 			return null;
+		}		
+		
+	}
+	
+	
+	protected WebElement findSubElementWithTextInListByClass(WebDriver driver, String parentClasstName, String childClassName, String text) {
+		
+		return findSubElementWithTextInListByClass(driver, parentClasstName, childClassName,  text, true);
+	}
+	
+	
+	protected WebElement findSubElementWithTextInListByClass(WebDriver driver, String parentClasstName, String childClassName, String text, boolean useMinListSize) {
+		
+
+		List<WebElement> elementList = getMultipleElementsByClass(driver, parentClasstName);
+		
+		if(useMinListSize) {
+		
+			while(elementList.size() < 2) {
+				
+				elementList = getMultipleElementsByClass(driver, parentClasstName);
+				
+			}
+			
 		}
 		
+		
+		WebElement element = null; 
+		
+		for(WebElement listItem : elementList) {
+			
+				String childElementText = listItem.findElement(By.className(childClassName)).getText().strip().trim();
+				
+				if(childElementText.equals(text)) {
+				
+					element = listItem.findElement(By.className(childClassName));
+					
+					WebDriverWait wait = new WebDriverWait(driver, DEFAULT_WAIT);
+					 
+					wait.until(ExpectedConditions.elementToBeClickable(element));
+					
+					break;
+				}
+				
+		}
+		
+		return element;
 		
 	}
 	
@@ -359,7 +492,7 @@ public class TestBase extends TestListenerAdapter {
 		
 		  log("Checking search results");
 		  
-		  //Elements can be in different order. Walk the results page and check expected items.
+		  //Elements can be in different order. Walk the results page and check for expected items.
 		  for(WebElement element : elementList) {
 			  
 			  boolean textPresent = false;
@@ -379,25 +512,28 @@ public class TestBase extends TestListenerAdapter {
 				  
 			  }
 			  
-			  if(textPresent) {
-		
-				  log("Text found in list"); 
-				 
-			  }
-			  else {
-				  
-				  Assert.fail("Expected text not present");
-			  
-			  }
-			  
+			  Assert.assertTrue(textPresent); 	  
 		  }
 		
 	}
 	
 	
-	protected void log(String string) {
+	protected void logAndFail(WebDriver driver, Exception e) {
+		
+		log("ERROR : " + e.toString());
+		
+		log("Closing driver after error");
+		
+		driver.close();
+		
+		Assert.fail();
+	}
+	
+	
+	protected void log(String message) {
 	  
-		Reporter.log(string);
+		Reporter.log(message);
+		
 		Reporter.log("<br>");
       
    }

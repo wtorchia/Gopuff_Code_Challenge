@@ -8,6 +8,15 @@ public class SearchPage extends POMBase{
 	
 	public final static String SEARCH_BOX_ID = "product-search";
 	
+	public final static String SEARCH_NOT_FOUND_CLASS = "gp-search-landing__not-found";
+	
+	public final static String IMAGE_CLASS = "gp-product-tile__image";
+	
+	
+	
+	
+	public final static String BAD_SEARCH_TEXT = "!@!)#(!@#";
+	
 	public final static String HOTDOG_SEARCH_TEXT = "hotdog";
 	
 	public final static String HOTDOG_SEARCH_RESULTS[] = {"Ball Park All Beef Hot Dogs 8pk",
