@@ -3,7 +3,7 @@
 <suite name="Suite">
   <test thread-count="10" name="FullTest" parallel = "methods">
     <classes>
-      <class name="tests.ShopPageTests"/>
+      <class name="tests.SearchPageTests"/>
     </classes>
   </test> <!-- Test -->
 </suite> <!-- Suite -->

@@ -1,14 +1,19 @@
 package tests;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.TestListenerAdapter;
+import pom.POMBase;
+
 
 
 public class TestBase extends TestListenerAdapter {
@@ -29,7 +34,7 @@ public class TestBase extends TestListenerAdapter {
   
 		ChromeOptions options = new ChromeOptions();
 		  
-		//options.addArguments("--headless");
+		options.addArguments("--headless");
 		
 		WebDriver driver = new ChromeDriver(options);
 		
@@ -58,6 +63,8 @@ public class TestBase extends TestListenerAdapter {
 			
 			driver.close();
 			
+			Assert.fail();
+			
 			return false;
 		}
 	}
@@ -82,6 +89,8 @@ public class TestBase extends TestListenerAdapter {
 			log("Closing driver after error");
 			
 			driver.close();
+			
+			Assert.fail();
 			
 			return false;
 		}
@@ -108,13 +117,15 @@ public class TestBase extends TestListenerAdapter {
 			
 			driver.close();
 			
+			Assert.fail();
+			
 			return false;
 		}
 		
 	}
 	
 	
-	protected WebElement GetElementByName(WebDriver driver, String elementName) {
+	protected WebElement getElementByName(WebDriver driver, String elementName) {
 		
 		try {
 			
@@ -144,11 +155,53 @@ public class TestBase extends TestListenerAdapter {
 			log("Closing driver after error");
 			
 			driver.close();
+	
+			Assert.fail();
 			
 			return null;
 		}
 		
 	}
+	
+	
+	protected WebElement getElementByID(WebDriver driver, String ID) {
+		
+		try {
+			
+			boolean result = waitForElementByID(driver, ID );
+			
+			if(result) {
+				
+				log("Locating element : " + ID + " by ID" );
+				
+				WebElement element = driver.findElement(By.id(ID));
+				
+				log("Elelment found");
+				
+				return element;
+			}
+			else {
+				
+				return null;
+			
+			}
+			
+		}
+		catch(Exception e) {
+			
+			log("ERROR : " + e.toString());
+			
+			log("Closing driver after error");
+		
+			driver.close();
+		
+			Assert.fail();
+			
+			return null;
+		}
+		
+	}
+	
 	
 	protected boolean sendkeysToElementByName(WebDriver driver, String elementName, String text) {
 		
@@ -156,7 +209,7 @@ public class TestBase extends TestListenerAdapter {
 			
 			log("Sending text " + text + " to element : " + elementName + " by name" );
 			
-			WebElement element = GetElementByName(driver, elementName );
+			WebElement element = getElementByName(driver, elementName );
 			
 			element.sendKeys(text);
 			
@@ -172,8 +225,172 @@ public class TestBase extends TestListenerAdapter {
 			
 			driver.close();
 			
+			Assert.fail();
+			
 			return false;
 		}
+		
+	}
+	
+	
+	protected boolean sendkeysToElementByID(WebDriver driver, String ID, String text) {
+		
+		try {
+			
+			log("Sending text " + text + " to element : " + ID + " by ID" );
+			
+			WebElement element = getElementByID(driver, ID );
+			
+			clickElementByID(driver, ID);
+			
+			element.sendKeys(text);
+			
+			element.sendKeys(Keys.ENTER);
+			
+			log("Text sent");
+			
+			return true;
+		}
+		catch(Exception e) {
+			
+			log("ERROR : " + e.toString());
+			
+			log("Closing driver after error");
+			
+			driver.close();
+			
+			Assert.fail();
+			
+			return false;
+		}
+		
+	}
+	
+	
+	protected boolean clickElementByID(WebDriver driver, String ID) {
+		
+
+		try {
+			
+			WebElement element = getElementByID(driver, ID );
+			
+			log("Clicking element by ID : " + ID);
+			
+			element.click();
+			
+			log("Element clicked");
+			
+			return true;
+		}
+		catch(Exception e) {
+			
+			log("ERROR : " + e.toString());
+			
+			log("Closing driver after error");
+			
+			driver.close();
+			
+			Assert.fail();
+			
+			return false;
+		}
+		
+		
+		
+	}
+	
+	protected List<WebElement> getMultipleElementsByClass(WebDriver driver, String className) {
+
+		try {
+			
+			log("Looking for all elements with class : " + className);
+			
+			List<WebElement> elementList =  driver.findElements(By.className(className));
+			
+			log("Elements found");
+			
+			return elementList;
+			
+		}
+		catch(Exception e) {
+			
+			log("ERROR : " + e.toString());
+			
+			log("Closing driver after error");
+			
+			driver.close();
+			
+			Assert.fail();
+			
+			return null;
+		}
+		
+	}
+	
+	protected WebElement selectSubElementByTag(WebDriver driver, WebElement element, String tagName) {
+		
+		try {
+			
+			log("Looking for sub elements with tag : " + tagName);
+			
+			WebElement subElement = element.findElement(By.tagName(tagName));
+			
+			return subElement;
+			
+		}
+		catch(Exception e) {
+			
+			log("ERROR : " + e.toString());
+			
+			log("Closing driver after error");
+			
+			driver.close();
+			
+			Assert.fail();
+			
+			return null;
+		}
+		
+		
+	}
+	
+	
+	public void validateSearResults(WebDriver driver, List<WebElement> elementList, String[] resultsList  ) {
+		
+		  log("Checking search results");
+		  
+		  //Elements can be in different order. Walk the results page and check expected items.
+		  for(WebElement element : elementList) {
+			  
+			  boolean textPresent = false;
+			  
+			  String elementText = selectSubElementByTag(driver, element, POMBase.IMAGE_TAG).getAttribute(POMBase.ALT_ATRIBUTE);
+			  
+			  log("Looing for : " + elementText );
+			  
+			  for(int i = 0; i < resultsList.length; i++) {
+				    
+				  if(elementText.contains(resultsList[i])) {
+					  
+					  textPresent = true;
+					  break;
+					  
+				  }
+				  
+			  }
+			  
+			  if(textPresent) {
+		
+				  log("Text found in list"); 
+				 
+			  }
+			  else {
+				  
+				  Assert.fail("Expected text not present");
+			  
+			  }
+			  
+		  }
 		
 	}
 	
